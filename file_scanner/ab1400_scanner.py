@@ -8,7 +8,7 @@ try:
 except ImportError:
     sys.exit("[ERROR] pycomm3 is not installed. Run: pip install pycomm3")
 
-def scan_plc_files(ip, out_file=None, slow_mode=False):
+def scan_plc_files(ip, out_file=None, slow_mode=False, specific_slot=None):
     print(f"Connecting to {ip} to perform a rapid existence scan (0-255)...\n")
     
     standard_files = {
@@ -23,7 +23,9 @@ def scan_plc_files(ip, out_file=None, slow_mode=False):
             driver.open()
             
             # MicroLogix allows up to file 255
-            for file_num in range(256):
+            slots_to_check = range(specific_slot, specific_slot + 1) if specific_slot is not None else range(256)
+            
+            for file_num in slots_to_check:
                 sys.stdout.write(f"Checking slot {file_num:<3} ... ")
                 sys.stdout.flush()
                 
@@ -76,9 +78,10 @@ def main():
     parser.add_argument("plc_ip", help="IP address of the PLC to scan")
     parser.add_argument("--out", default="", help="Optional text file to save the found file names")
     parser.add_argument("--slow", "-s", action="store_true", help="Enable slow mode (3s delay between checks)")
+    parser.add_argument("--slot", "-l", type=int, default=None, help="Check only a specific slot (e.g., 1 or 100)")
     
     args = parser.parse_args()
-    scan_plc_files(args.plc_ip, args.out, args.slow)
+    scan_plc_files(args.plc_ip, args.out, args.slow, args.slot)
 
 if __name__ == '__main__':
     main()
