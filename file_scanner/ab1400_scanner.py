@@ -8,7 +8,7 @@ try:
 except ImportError:
     sys.exit("[ERROR] pycomm3 is not installed. Run: pip install pycomm3")
 
-def scan_plc_files(ip, out_file=None):
+def scan_plc_files(ip, out_file=None, slow_mode=False):
     print(f"Connecting to {ip} to perform a rapid existence scan (0-255)...\n")
     
     standard_files = {
@@ -49,6 +49,9 @@ def scan_plc_files(ip, out_file=None):
                     found_count += 1
                 else:
                     print("[ Not Found ]")
+                
+                if slow_mode:
+                    time.sleep(3)
                         
     except Exception as e:
         print(f"\n[ERROR] Connection failed: {e}")
@@ -72,9 +75,10 @@ def main():
     parser = argparse.ArgumentParser(description="MicroLogix 1400 Memory Enumerator")
     parser.add_argument("plc_ip", help="IP address of the PLC to scan")
     parser.add_argument("--out", default="", help="Optional text file to save the found file names")
+    parser.add_argument("--slow", "-s", action="store_true", help="Enable slow mode (3s delay between checks)")
     
     args = parser.parse_args()
-    scan_plc_files(args.plc_ip, args.out)
+    scan_plc_files(args.plc_ip, args.out, args.slow)
 
 if __name__ == '__main__':
     main()
